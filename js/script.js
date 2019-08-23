@@ -16,7 +16,19 @@ FSJS project 2 - List Filter and Pagination
    will only be used inside of a function, then it can be locally 
    scoped to that function.
 ***/
+let studentList = document.querySelector('.student-list');
+let list = studentList.children;
+let page = '';
+let numPerPage = 10;
+let numOfPages = 1;
+let pageButton = '';
 
+function calcNumOfPages () {
+   return Math.ceil(list.length / numPerPage);
+};
+
+numOfPages = calcNumOfPages();
+console.log("The number of pages needed are: " + numOfPages);
 
 
 
@@ -34,8 +46,29 @@ FSJS project 2 - List Filter and Pagination
        that will be passed into the parens later when you call or 
        "invoke" the function 
 ***/
+let showPage = (list, page) => {
+   let pageStart = (page -1) * numPerPage ;
+   let pageEnd = Math.min(page * numPerPage, list.length) - 1;
+   console.log(pageStart + ' ' + pageEnd);
 
+   for (i = 0; i < list.length; i += 1){
+      if(i >= pageStart && i <= pageEnd){
+         list[i].style.display = 'block';
+      }else {
+         list[i].style.display = 'none';
+      }
+    }
+   }
+   
+   /*
+   Loop over items in the list parameter
+   -- If the index of a list item is >= the index of the first
+   item that should be shown on the page
+   -- && the list item index is <= the index of the last item
+   that should be shown on the page, show it
+   */
 
+showPage(list, 1);
 
 
 /*** 
@@ -43,7 +76,28 @@ FSJS project 2 - List Filter and Pagination
    functionality to the pagination buttons.
 ***/
 
+function appendPageLinks(list) {
+   page = document.querySelector('.page');
+   let buttonsLi = document.createElement('UL');
+   buttonsLi.className = 'pagination';
+   page.appendChild(buttonsLi);
+   for(i = 0; i < numOfPages; i += 1) {
+      let li = buttonsLi.appendChild(document.createElement('LI'));
+      let pageButton = document.createElement('BUTTON');
+      pageButton.type = 'button';
+      pageButton.innerHTML = i+1;
+      pageButton.className = 'pagination, li, a'
+      pageButton.id = i + 1;
+      li.appendChild(pageButton);   
 
+      pageButton.addEventListener('click', (e) => {
+      let pageClicked = parseInt(e.target.innerHTML);
+      showPage(list, pageClicked);
+      })   
+    }
+    };
+
+appendPageLinks(list);
 
 
 
