@@ -2,55 +2,83 @@
 Treehouse Techdegree:
 FSJS project 2 - List Filter and Pagination
 ******************************************/
-   
-// Study guide for this project - https://drive.google.com/file/d/1OD1diUsTMdpfMDv677TfL1xO2CEkykSz/view?usp=sharing
 
 
-/*** 
-   Add your global variables that store the DOM elements you will 
-   need to reference and/or manipulate. 
-   
-   But be mindful of which variables should be global and which 
-   should be locally scoped to one of the two main functions you're 
-   going to create. A good general rule of thumb is if the variable 
-   will only be used inside of a function, then it can be locally 
-   scoped to that function.
-***/
-let studentList = document.querySelector('.student-list');
-let list = studentList.children;
-let page = '';
-let numPerPage = 10;
-let numOfPages = 1;
-let pageButton = '';
+//Initialize global variables
+const pageHeader = document.getElementsByClassName("page-header cf")[0];
+const studentList = document.querySelector('.student-list');
+const list = studentList.children;
+const numPerPage = 10;  // This number can be modified to allow desired number of items to be shown on page
+const pageButton = '';
+let resultFound = false;
 
-function calcNumOfPages () {
-   return Math.ceil(list.length / numPerPage);
-};
+//START SEARCH FUNCTIONALITY
+//Create a DIV block for the student-search functionality
+const searchForm = document.createElement('FORM');
+   searchForm.className = "student-search";
+   pageHeader.appendChild(searchForm);
 
-numOfPages = calcNumOfPages();
-console.log("The number of pages needed are: " + numOfPages);
+//Create the Student Search Button
+const searchButton = document.createElement('BUTTON');
+   searchButton.className = 'student-search button';
+   searchButton.type = 'submit';
+   searchButton.name = 'submit';
+   searchButton.textContent = 'Search';
+   searchForm.appendChild(searchButton);
 
+//Create the searchInput element
+const searchInput = document.createElement('INPUT');
+   searchInput.className = 'student-search input';
+   searchInput.type = 'text';
+   searchInput.name = 'name';
+   searchInput.placeholder = "Search for a student";
+   searchForm.appendChild(searchInput);
 
+//Create element to store message output when no search results are returned.
+let noResults = document.createElement('p')
+   noResults.align = 'center';
+   noResults.innerHTML = 'Sorry, there were no results found.  Please try your search again.';
+   pageHeader.appendChild(noResults);
+   noResults.style.display = 'none'
 
-/*** 
-   Create the `showPage` function to hide all of the items in the 
-   list except for the ten you want to show.
+// Create function to process the search using input from searchInput value (via whole name, first or last name, or email address)
+function searchStudents(studentName) { 
+      resultFound = false;
+      for (i = 0; i < list.length; i += 1){
+         let search = document.getElementsByTagName('h3')[i].innerHTML
+         let email = document.getElementsByClassName('email')[i].innerHTML
+         let names = search.split(' ');         
+         if(studentName === search || studentName === names[0] || studentName === names[1] || studentName === names[2] || email === studentName){
+            list[i].style.display = 'block';
+            resultFound = true;
+         }else{
+            list[i].style.display = 'none';
+         }  
+      }
 
-   Pro Tips: 
-     - Keep in mind that with a list of 54 students, the last page 
-       will only display four.
-     - Remember that the first student has an index of 0.
-     - Remember that a function `parameter` goes in the parens when 
-       you initially define the function, and it acts as a variable 
-       or a placeholder to represent the actual function `argument` 
-       that will be passed into the parens later when you call or 
-       "invoke" the function 
-***/
+      if(resultFound === true) {
+         noResults.style.display = 'none';
+      }else {
+         noResults.style.display = 'block';
+      }
+   }
+
+searchForm.addEventListener('submit', (e) => {
+   e.preventDefault();
+   let studentName = searchInput.value;
+   searchInput.value = '';
+   searchStudents(studentName);   
+})
+//END SEARCH FUNCTIONALITY
+
+//BEGIN FUNCTIONALITY TO DIVIDE THE STUDENT LIST INTO SECTIONS OF 10 STUDENTS PER PAGE
+
+// Determine the total number of pages needed
+let numOfPages = Math.ceil(list.length / numPerPage);
+
 let showPage = (list, page) => {
    let pageStart = (page -1) * numPerPage ;
-   let pageEnd = Math.min(page * numPerPage, list.length) - 1;
-   console.log(pageStart + ' ' + pageEnd);
-
+   let pageEnd = Math.min(page * numPerPage, list.length) - 1;   
    for (i = 0; i < list.length; i += 1){
       if(i >= pageStart && i <= pageEnd){
          list[i].style.display = 'block';
@@ -59,25 +87,14 @@ let showPage = (list, page) => {
       }
     }
    }
-   
-   /*
-   Loop over items in the list parameter
-   -- If the index of a list item is >= the index of the first
-   item that should be shown on the page
-   -- && the list item index is <= the index of the last item
-   that should be shown on the page, show it
-   */
+//END FUNCTIONALITY TO DIVIDE THE STUDENT LIST INTO SECTIONS OF 10 STUDENTS PER PAGE
 
-showPage(list, 1);
+//Display the first page of 10 students when page initially loads
+showPage(list, 2);
 
-
-/*** 
-   Create the `appendPageLinks function` to generate, append, and add 
-   functionality to the pagination buttons.
-***/
-
+//BEGIN FUNCTIONALITY TO GENERATE, APPEND AND ADD PAGINATION BUTTONS
 function appendPageLinks(list) {
-   page = document.querySelector('.page');
+   let page = document.querySelector('.page');
    let buttonsLi = document.createElement('UL');
    buttonsLi.className = 'pagination';
    page.appendChild(buttonsLi);
@@ -93,12 +110,14 @@ function appendPageLinks(list) {
       pageButton.addEventListener('click', (e) => {
       let pageClicked = parseInt(e.target.innerHTML);
       showPage(list, pageClicked);
+      noResults.style.display = 'none';
       })   
     }
     };
+//END FUNCTIONALITY TO GENERATE, APPEND AND ADD PAGINATION BUTTONS
 
+// Run function to generate the page links
 appendPageLinks(list);
 
 
 
-// Remember to delete the comments that came with this file, and replace them with your own code comments.
